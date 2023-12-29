@@ -1,73 +1,225 @@
-import algo1
-import algo2
-
-from tkinter import *
+import tkinter as tk
+from tkinter import ttk
 from tkinter import messagebox
+import os
+import sys
+import encrypt
+import decrypt
+import pyperclip
+from pyperclip import copy
 
-class Encrypt:
-    def __init__(self,text=""):
-        self.text = text
-        self.key = bytes()
-        self.root=Tk()
-        self.val=()
+# Global variables
+# The main window
+main_window = None
+# The main frame
+main_frame = None
+# The main title
+main_title = None
 
-    def encrypt(self,type) -> None:
-        self.text=self.text_box.get("1.0",END)
-        if type == 1:
-            self.val=algo1.encrypt(self.text)
-            self.key=self.val[1]
-            messagebox.showwarning("Encrypted Text","Encrypted Text is saved in key.txt")
-            messagebox.showinfo("Key","Key is saved in key.txt")
-            print(self.val)
-        elif type == 2:
-            self.val=algo2.encrypt(self.text)
-            messagebox.showinfo("Encrypted Text",self.val[:-1])
-            print(self.val[:-1])
-        else:
-            messagebox.ERROR("Invalid type","Invalid type")
+# The input Text frame , lable and entry
+input_text_frame = None
+input_text_label = None
+input_text_entry = None
 
-    def main(self) -> None:
-        self.root.title("Encrypter")
-        self.root.geometry("500x500")
-        self.root.resizable(False,False)
-        self.root.configure(bg="black")
-        # self.root.iconbitmap("icon.ico")
-        
-        self.frame=Frame(self.root,width=300,height=300,bg="black")
-        self.frame.configure(bg="black",cursor="arrow")
-        self.frame.grid()
+# The output Text frame , lable and entry
+output_text_frame = None
+output_text_label = None
+output_text_entry = None
 
-        self.title=Label(self.frame,text="Encrypter / Decrypter",font="Arial 20 bold",bg="black",foreground="white")
-        self.title.grid(row=0,columnspan=2,padx=10,pady=10)
+# dropdown to choose of 3 options to encrypt/decrypt
+dropdown_frame = None
+dropdown_label = None
+dropdown = None
 
-        self.input=Label(self.frame,text="Text To Encrypt",font="Arial 15",bg="black",foreground="white")
-        self.input.grid(row=1,column=0,padx=10,pady=10)
+# decrypt key
+key_frame = None
+key_label = None
+key_entry = None
 
+# The button frame and buttons for encrypt/decrypt
+button_frame = None
+encrypt_button = None
+decrypt_button = None
+copy_button = None
 
-        # text box
-        self.text_box=Text(self.frame,width=25,height=1,foreground="white",bg="black",font="Arial 15",cursor="arrow",insertbackground="white")
-        self.text_box.grid(row=1,column=1,padx=10,pady=10)
+# The status bar
+status_bar = None
 
-        # encrypt button
-        self.encrypt_button1=Button(self.frame,text="Random Key Gen",command=lambda:self.encrypt(1),bg="black",foreground="Yellow")
-        self.encrypt_button1.grid(row=2,column=0,padx=10,pady=10)
+# The main function
+def main():
+    global main_window
+    global main_frame
+    global main_title
+    global input_text_frame
+    global input_text_label
+    global input_text_entry
+    global output_text_frame
+    global output_text_label
+    global output_text_entry
+    global dropdown_frame
+    global dropdown_label
+    global dropdown
+    global button_frame
+    global encrypt_button
+    global decrypt_button
+    global copy_button
+    global status_bar
+    global key_frame
+    global key_label
+    global key_entry
 
-        self.encrypt_button2=Button(self.frame,text="Ceasar Cipher",command=lambda:self.encrypt(2),bg="black",foreground="Yellow")
-        self.encrypt_button2.grid(row=2,column=1,padx=10,pady=10)
+    # Create the main window
+    main_window = tk.Tk()
+    main_window.title("Encrypt/Decrypt")
+    main_window.geometry("500x800")
+    main_window.resizable(False, False)
 
-        # decrypt button
-        self.decrypt_button=Button(self.frame,text="Key Decrypt",command=lambda:self.decrypt(1),bg="black",foreground="Yellow")
-        self.decrypt_button.grid(row=4,column=0,padx=10,pady=10)
+    # Create the main frame
+    main_frame = ttk.Frame(main_window, width=500, height=500)
+    main_frame.pack(fill=tk.BOTH, expand=True)
 
-        self.decrypt_button=Button(self.frame,text="Ceasar Decrypt",command=lambda:self.decrypt(2),bg="black",foreground="Yellow")
-        self.decrypt_button.grid(row=4,column=1,padx=10,pady=10)
+    # Create the main title
+    main_title = ttk.Label(main_frame, text="Encrypt/Decrypt")
+    main_title.config(font=("Courier", 44))
+    main_title.pack(pady=20)
 
-        # exit button
-        self.exit_button=Button(self.frame,text="Exit",command=self.root.destroy,bg="black",foreground="Yellow")
-        self.exit_button.grid(row=5,columnspan=3,padx=10,pady=10)
+    # Create the input text frame
+    input_text_frame = ttk.Frame(main_frame, width=500, height=100)
+    input_text_frame.pack(fill=tk.BOTH, expand=True)
 
-        self.root.mainloop()
+    # Create the input text label
+    input_text_label = ttk.Label(input_text_frame, text="Input text:")
+    input_text_label.config(font=("Courier", 20))
+    input_text_label.pack(pady=10)
 
-if __name__ == "__main__":
-    ob=Encrypt()
-    ob.main()
+    # Create the input text entry
+    input_text_entry = ttk.Entry(input_text_frame, width=50)
+    input_text_entry.pack(pady=10)
+
+    key_frame = ttk.Frame(main_frame, width=500, height=100)
+    key_frame.pack(fill=tk.BOTH, expand=True)
+
+    key_label = ttk.Label(key_frame, text="Enter the key:")
+    key_label.config(font=("Courier", 20))
+    key_label.pack(pady=10)
+
+    key_entry = ttk.Entry(key_frame, width=50)
+    key_entry.pack(pady=10)
+    # Create the output text frame
+    output_text_frame = ttk.Frame(main_frame, width=500, height=100)
+    output_text_frame.pack(fill=tk.BOTH, expand=True)
+
+    # Create the output text label
+    output_text_label = ttk.Label(output_text_frame, text="Output text:")
+    output_text_label.config(font=("Courier", 20))
+    output_text_label.pack(pady=10)
+
+    # Create the output text entry
+    output_text_entry = ttk.Entry(output_text_frame, width=50)
+    output_text_entry.pack(pady=10)
+
+    # Create the dropdown frame
+    dropdown_frame = ttk.Frame(main_frame, width=500, height=100)
+    dropdown_frame.pack(fill=tk.BOTH, expand=True)
+
+    # Create the dropdown label
+    dropdown_label = ttk.Label(dropdown_frame, text="Choose an option:")
+    dropdown_label.config(font=("Courier", 20))
+    dropdown_label.pack(pady=10)
+
+    # Create the dropdown
+    dropdown = ttk.Combobox(dropdown_frame, width=50)
+    global values
+    values = ['Random Key Gen', 'Ceasar Cipher', 'Vigenere Cipher']
+    dropdown['values'] = values
+    dropdown.current(0)
+    dropdown.pack(pady=10)
+
+    # Create the button frame
+    button_frame = ttk.Frame(main_frame, width=500, height=100)
+    button_frame.pack(fill=tk.BOTH, expand=True)
+
+    # Create the encrypt button
+    encrypt_button = ttk.Button(button_frame, text="Encrypt", command=lambda: encrypt_button_pressed())
+    encrypt_button.pack(side=tk.LEFT, padx=10)
+
+    # Create the decrypt button
+    decrypt_button = ttk.Button(button_frame, text="Decrypt", command=lambda: decrypt_button_pressed())
+    decrypt_button.pack(side=tk.LEFT, padx=10)
+
+    # Create the copy button
+    copy_button = ttk.Button(button_frame, text="Copy", command=lambda: copy_button_pressed())
+    copy_button.pack(side=tk.LEFT, padx=10)
+
+    # Create the status bar
+    status_bar = ttk.Label(main_frame, text="Encrypt/Decrypt")
+    status_bar.config(font=("Courier", 20))
+    status_bar.pack(pady=20)
+
+    # Start the main loop
+    main_window.mainloop()
+
+# The encrypt button pressed function
+def encrypt_button_pressed():
+    global input_text_entry
+    global output_text_entry
+    global dropdown
+    global status_bar
+
+    # Get the input text
+    input_text = input_text_entry.get()
+
+    # Get the dropdown value
+    dropdown_value = dropdown.get()
+    dropdown_value=values.index(dropdown_value)+1
+    output_text = encrypt.encrypt(input_text,dropdown_value)
+
+    # Set the output text
+    output_text_entry.delete(0, tk.END)
+    output_text_entry.insert(0, output_text)
+
+    # Set the status bar
+    status_bar.config(text="Encrypted")
+
+# The decrypt button pressed function
+def decrypt_button_pressed():
+    global input_text_entry
+    global output_text_entry
+    global dropdown
+    global status_bar
+    global key_entry
+    # Get the input text
+    input_text = input_text_entry.get()
+
+    # Get the dropdown value
+    dropdown_value = dropdown.get()
+    dropdown_value=values.index(dropdown_value)+1
+    
+    key=key_entry.get()
+
+    # Decrypt the input text
+    output_text = decrypt.decrypt(input_text,dropdown_value,key)
+
+    # Set the output text
+    output_text_entry.delete(0, tk.END)
+    output_text_entry.insert(0, output_text)
+
+    # Set the status bar
+    status_bar.config(text="Decrypted")
+
+# The copy button pressed function
+def copy_button_pressed():
+    global output_text_entry
+    global status_bar
+
+    # Get the output text
+    output_text = output_text_entry.get()
+
+    # Copy the output text
+    copy(output_text)
+
+    # Set the status bar
+    status_bar.config(text="Copied")
+
+# Call the main function
+main()

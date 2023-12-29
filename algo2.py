@@ -15,7 +15,8 @@ def encrypt(text)-> Tuple:
     return (encrypted)
 
 @lru_cache(maxsize=1000)
-def decrypt(text)->Tuple:
+def decrypt(text,key)->Tuple:
+    del key
     decrypted = ""
     for i in text:
         if i == " ":

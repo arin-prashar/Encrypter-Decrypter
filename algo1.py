@@ -1,6 +1,7 @@
 from cryptography.fernet import Fernet
 from typing import Tuple
 from functools import lru_cache
+import json
 
 
 @lru_cache(maxsize=1000)
@@ -9,11 +10,9 @@ def encrypt(text)-> Tuple[str,str]:
     f = Fernet(key)
     encrypted = f.encrypt(text.encode())
     # bytes to str
-    with open("key.txt","wb") as file:
-        file.write(encrypted)
-        # newline
-        file.write(b"\n")
-        file.write(key)
+    # write key to json file
+    with open('key.json','w') as f:
+        json.dump(key.decode(),f)
 
     return (encrypted,key)
 
@@ -21,5 +20,6 @@ def encrypt(text)-> Tuple[str,str]:
 def decrypt(text,key)->str:
     f = Fernet(key)
     decrypted = f.decrypt(text.encode())
-    print(decrypted)
     return decrypted
+
+encrypt("hello")
